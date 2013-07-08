@@ -59,7 +59,7 @@ end
 desc "Deploy last generated version of the site"
 task :deploy do
   progress "Deploying last generated version of site..."
-  puts `rsync -arl site/ ninjasti@ninjastic.net:~/public_html/findinglines`
+  puts `rsync -arl site/ root@88.198.105.197:/var/www/findinglines.net/`
 end
 
 desc "Backup blog content"
