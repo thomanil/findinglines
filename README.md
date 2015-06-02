@@ -4,7 +4,7 @@ I'm teaching myself to draw in pencil and
 pixels. [findinglines.net](http://findinglines.net) is a simple
 blog/journal where I post some of the stuff I produce along the way.
 
-I don't want to fiddle around with the web interface at DeviantArt or
+I don't want to fid-dle around with the web interface at DeviantArt or
 some Wordpress blog each time I post something. And I want it to be
 maintenance free. Therefore it's set up as a static site generated out
 of Emacs org-files and images I upload to Dropbox as I go along.
