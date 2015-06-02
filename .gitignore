@@ -1,3 +1,5 @@
 site
 src/blog/*.html
 tmp
+/flickr-api-key
+/content/
