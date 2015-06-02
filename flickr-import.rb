@@ -20,30 +20,37 @@ class Flickr
   end
 end
 
-# Api connect
-api_key = File.open("flickr-api-key").read.strip
-flickr = Flickr.new(api_key)
-user = flickr.users('tegnethomas@yahoo.no')
 
-# Handle photos
-user.photos.each do |photo|
+def my_photos
+  api_key = File.open("flickr-api-key").read.strip
+  flickr = Flickr.new(api_key)
+  user = flickr.users('tegnethomas@yahoo.no')
+  photos = user.photos
+end
+
+my_photos.each do |photo|
   title = photo.title
   description = photo.description
   taken = photo.taken
 
-  puts title
-  puts description
-  puts taken
+  if title.include? "IMAG"
+    title = ""
+  end
 
-  #Save file to disk
-  #File.open(photo.filename, 'w') do |file|
-  #  file.puts photo.file
-  #end
+  folder_name = File.join("content", taken.gsub(" ","_").gsub(":", "-"))
 
-  puts "----"
+  if Dir.exist?(folder_name)
+    puts "Already present: #{taken}"
+  else
+    puts "Downloading: #{taken}"
+
+    `mkdir -p #{folder_name}`
+
+    # TODO Save metadata to json file
+
+    pic_path = File.join(folder_name, photo.filename)
+    File.open(pic_path, 'w+') do |file|
+      file.puts photo.file
+    end
+  end
 end
-
-
-
-#require 'pry'
-#binding.pry
