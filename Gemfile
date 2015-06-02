@@ -1,4 +1,5 @@
 source "http://rubygems.org"
 
 gem 'rake'
-gem 'flickr'
+gem 'flickr.rb'
+gem 'pry'
