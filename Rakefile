@@ -54,6 +54,7 @@ task :generate do
   prepare_folders_and_assets
   generate_main_pages
   generate_blog
+  progress "Site generated"
 end
 
 desc "Deploy last generated version of the site"
@@ -62,18 +63,11 @@ task :deploy do
   puts `rsync -arl site/ ninjasti@ninjastic.net:~/public_html/findinglines`
 end
 
-desc "Backup blog content"
-task :backup do
-  progress "Backing up assets from Dropbox..."
-  # TODO
-  # tar up the dropbox dir
-  # stick it in S3 bucket
-end
-
 
 private
 
 def prepare_folders_and_assets
+  progress "Preparing folders and assets..."
   `mkdir -p site`
   `mkdir -p tmp`
   `rsync -r src/images site`
@@ -89,6 +83,7 @@ def layouted(content)
 end
 
 def generate_main_pages
+  progress "Generating main pages"
   main_pages = Dir.glob("./src/mainpages/*").map{|path|File.basename(path)}
   main_pages.each do |name|
     body = File.read("src/mainpages/#{name}")
@@ -102,40 +97,38 @@ def generate_main_pages
   end
 end
 
-def transform_orgfiles
-  html_export_dest = File.dirname(__FILE__)
-  `html-org-export #{FINDINGLINES_DROPBOX_ROOTDIR}/archive/posts/ #{html_export_dest}/tmp/`
-
+# TODO Rework this to use the flicrk-imported directories/pics/metadata
+def transform_photo_summary_folders
+  progress "Processing the content/ assets"
   blog_posts = []
-  Dir.glob("tmp/*.html").each do |exported_html_path|
-    html_file =  File.read(exported_html_path)
-    doc = Nokogiri::HTML(html_file)
-    title = doc.css("title").text || "<untitled>"
-    title = "(untitled)" if title == ""
-    published = doc.xpath("//meta[@name='generated']").attribute("content").text
+  Dir.glob("content/*").each do |content_pic_folder|
+    puts content_pic_folder
 
-    if published != "unpublished"
-      published_rfc_3339 = Time.parse(published).xmlschema
-      body = doc.css("#content").to_html # Just grabbing the content div, drop the rest
-      body = "<span id='date'>#{published}</span>"+body
-      filename = File.basename(exported_html_path)
+    title = "title"
+    body = "body"
+    filename = "filename"
+    published = "26.06.1978"
+    published_rfc_3339 = Time.parse(published).xmlschema
 
-      blog_posts << {:title => title,
-        :published => published,
-        :published_rfc_3339 => published_rfc_3339,
-        :body => body,
-        :filename => filename}
-    end
+    blog_posts << {:title => title,
+                   :published => published,
+                   :published_rfc_3339 => published_rfc_3339,
+                   :body => body,
+                   :filename => filename}
   end
 
   blog_posts.sort_by{|p|Time.parse(p[:published]).tv_sec}.reverse
 end
 
+
 def generate_blog
+  progress "Generating the static blog site"
+
   archive_links = ""
   atom_entries = ""
 
-  blog_posts = transform_orgfiles
+  progress "Extracting blog posts from content/"
+  blog_posts = transform_photo_summary_folders
   blog_posts.each_with_index do |post, i|
     name = post[:filename]
     title = post[:title]
@@ -166,13 +159,13 @@ def generate_blog
     atom_entries += atom_entry(title, body, name, published_rfc_3339)
   end
 
-  # Write out the archive page
+  progress "Generating archive page"
   archive = "<div id='anav'>#{archive_links}</div>"
   File.open("site/archive.html", "w+") do |f|
     f.write(layouted(archive))
   end
 
-  # Generate atom feed
+  progress "Generating atom feed"
   feed = atom_feed(atom_entries)
   File.open("site/atom.xml", "w+") do |f|
     f.write(feed)
@@ -215,27 +208,6 @@ def escaped(str)
   end
 end
 
-def orgfile_template(human_readable_time, time, thumbnail_url, fullsize_url)
-  <<TEMPLATE
-#+TITLE:
-#+EMAIL:     thomas@kjeldahlnilsson.net
-#+DATE:      #{time}
-#+DESCRIPTION:
-#+KEYWORDS:
-#+LANGUAGE:  en
-#+OPTIONS: H:3 num:nil toc:nil @:t ::t |:t ^:t -:t f:t *:t <:t
-#+OPTIONS: TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
-#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
-#+EXPORT_SELECT_TAGS: export
-#+EXPORT_EXCLUDE_TAGS: noexport
-#+LINK_UP:
-#+LINK_HOME:
-#+XSLT:
-
-[[#{fullsize_url}][#{thumbnail_url}]]
-
-TEMPLATE
-end
 
 def progress(msg)
   puts "          --- Findinglines Rakefile: #{msg} ---"
