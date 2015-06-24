@@ -28,16 +28,19 @@ def my_photos
   photos = user.photos
 end
 
+require "json"
+
 my_photos.each do |photo|
   title = photo.title
   description = photo.description
   taken = photo.taken
+  url = photo.url
 
   if title.include? "IMAG"
     title = ""
   end
 
-  folder_name = File.join("content", taken.gsub(" ","_").gsub(":", "-"))
+  folder_name = File.join("content", taken.gsub(" ","---").gsub(":", "-"))
 
   if Dir.exist?(folder_name)
     puts "Already present: #{taken}"
@@ -46,11 +49,20 @@ my_photos.each do |photo|
 
     `mkdir -p #{folder_name}`
 
-    # TODO Save metadata to json file
+    metadata = {
+      :title => "TODO",
+      :notes => "TODO",
+      :timestamp => "TODO",
+      :url => "TODO"
+    }
 
     pic_path = File.join(folder_name, photo.filename)
     File.open(pic_path, 'w+') do |file|
       file.puts photo.file
+    end
+    metadata_path = File.join(folder_name, "metadata.json")
+    File.open(metadata_path, 'w+') do |file|
+      file.puts metadata.to_json
     end
   end
 end

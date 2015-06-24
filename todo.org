@@ -12,8 +12,6 @@
 #+LINK_HOME:
 #+XSLT:
 
-* TODO Tweak index & navigation
-  Show last 15
-  Link to previous/next
-  Link to "show all"?
-  ...
+* TODO Rejigger site generation to generate from the new content file structure
+* TODO Implement Flicrk import
+  Retain flickr "original" link for each one

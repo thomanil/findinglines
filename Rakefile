@@ -71,7 +71,6 @@ def prepare_folders_and_assets
   `mkdir -p site`
   `mkdir -p tmp`
   `rsync -r src/images site`
-  `rsync -r #{FINDINGLINES_DROPBOX_ROOTDIR}/archive/pics/* site/images`
   `rsync -r src/stylesheets site`
   `rsync -r src/javascript site`
   `echo "ErrorDocument 404 /404.html" > site/.htaccess`
@@ -104,10 +103,11 @@ def transform_photo_summary_folders
   Dir.glob("content/*").each do |content_pic_folder|
     puts content_pic_folder
 
-    title = "title"
-    body = "body"
-    filename = "filename"
-    published = "26.06.1978"
+    title = "title" #TODO
+    body = "<p>body</p>" #TODO
+    filename = "filename" #TODO
+
+    published = "2015-06-23 07:41:15 +0200"
     published_rfc_3339 = Time.parse(published).xmlschema
 
     blog_posts << {:title => title,
